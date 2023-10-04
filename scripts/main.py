@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from modules import script_callbacks
 
 extensions_path = __file__.split("/extensions",1)[0]
-self_folder = os.path.join(extensions_path,"extensions/callInterface")
+self_folder = os.path.join(extensions_path,"extensions/sd_callInterface")
 with open(os.path.join(self_folder,"easy_ui.html"),"r") as f:
     callInterface_html = f.read()
 
