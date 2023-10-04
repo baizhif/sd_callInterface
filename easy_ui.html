@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>sd_api调用</title>
+</head>
+
+<body>
+    <div id="txt2img">
+        <textarea style="width: 100%;" rows="8" placeholder="正面prompt" id="p_prompt"></textarea>
+        <textarea style="width: 100%;" rows="8" placeholder="负面prompt" id="n_prompt"></textarea>
+        <input type="number" value="-1" min="-1" id="seed" />
+    </div>
+    <div id="show_img"></div>
+    <div>
+        <button onclick="txt2img()">生成</button>
+    </div>
+
+    <script>
+        const show_img_div = document.getElementById("show_img");
+
+        function getparams() {
+            const p_prompt = document.getElementById("p_prompt").innerText;
+            const n_prompt = document.getElementById("n_prompt").innerText;
+            let seed = document.getElementById("seed").value;
+            if (seed == '0' || seed == '-1') {
+                seed = Math.random().toString().slice(9);
+            }
+            return p_prompt, n_prompt, seed;
+
+        }
+        function txt2img() {
+            p_prompt, n_prompt, seed = getparams();
+            param = {
+                "prompt":p_prompt,
+                "negative_prompt":n_prompt,
+                "seed":seed,
+                "cfg_scale":11,
+                "steps":24,
+                "width":512,
+                "height":512,
+            };
+            const xhr = new XMLHttpRequest();
+            const url =  '/callInterface/api/txt2img';
+            xhr.open("post", url,true);
+            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+            xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4 &&  xhr.status === 200) {
+                console.log("后端返回的结果："+this.response);
+                const img = document.createElement("img");
+                img.src = "data:image/png;base64," + this.responseText;
+                show_img_div.insertBefore(img,show_img_div.firstChild);
+            }
+            xhr.send(JSON.stringify(param));
+            
+	};
+        }
+    </script>
+</body>
+
+</html>
