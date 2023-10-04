@@ -8,17 +8,50 @@
 </head>
 
 <body>
+    <style>
+        :root {
+        --backgroung_color: rgb(13, 17, 23);
+        --fontColor: white
+        }
+        .textarea_c{
+            font-size: 18px;
+        }
+        *{
+            background-color: var(--backgroung_color);
+            color: var(--fontColor);
+        }
+        button{
+            padding: 15px 32px;
+            background-color: blueviolet;
+            border-radius: 8px;
+            display: inline-block;
+            cursor: pointer;
+        }
+        
+    </style>
     <div id="txt2img">
-        <textarea style="width: 100%;" rows="8" placeholder="正面prompt" id="p_prompt"></textarea>
-        <textarea style="width: 100%;" rows="8" placeholder="负面prompt" id="n_prompt"></textarea>
-        <input type="number" value="-1" min="-1" id="seed" />
+        <textarea style="width: 100%;" rows="8" placeholder="正面prompt" id="p_prompt" class="textarea_c">masterpiece, best quality, </textarea>
+        <textarea style="width: 100%;" rows="8" placeholder="负面prompt" id="n_prompt" class="textarea_c">EasyNegative, </textarea>
+        <input type="number" min="8" value="512" placeholder="width" id="width">
+        <input type="number" min="8" value="768" placeholder="height" id="height">
+        <input type="number" min="1" value="11" placeholder="提示词相关性(cfg_scale)" id="cfg_scale">
+        <input type="number" min="1" value="24" placeholder="steps" id="steps">
+        <input type="number" value="-1" min="-1" placeholder="seed" id="seed"/>
     </div>
-    <div>
+    <div style="position:relative;top:10px;text-align: center;">
         <button onclick="txt2img()">生成</button>
     </div>
     <div id="show_img"></div>
 
     <script>
+        let backgroung_color,fontColor;
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches || window.location['href'].endsWith('__theme=dark')) {
+            backgroung_color = "rgb(13, 17, 23)";
+            fontColor = "white";
+        }else{
+            backgroung_color = "white";
+            fontColor = "black";
+        }
         const show_img_div = document.getElementById("show_img");
 
         function getparams() {
@@ -32,16 +65,19 @@
         function txt2img() {
             const n_prompt = document.getElementById("n_prompt").value;
             const p_prompt = document.getElementById("p_prompt").value;
+            const cfg_scale = document.getElementById("cfg_scale").value;
+            const steps = document.getElementById("steps").value;
+            const width = document.getElementById("width").value - document.getElementById("width").value % 8;
+            const height = document.getElementById("height").value - document.getElementById("height").value % 8;
             const seed = getparams();
-            console.log(p_prompt,n_prompt,seed);
             param = {
                 "prompt":p_prompt,
                 "negative_prompt":n_prompt,
                 "seed":seed,
-                "cfg_scale":11,
-                "steps":24,
-                "width":512,
-                "height":512,
+                "cfg_scale":cfg_scale,
+                "steps":steps,
+                "width":width,
+                "height":height,
             };
             const xhr = new XMLHttpRequest();
             const url =  '/callInterface/api/txt2img';
