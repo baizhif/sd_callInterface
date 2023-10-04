@@ -22,17 +22,18 @@
         const show_img_div = document.getElementById("show_img");
 
         function getparams() {
-            const p_prompt = document.getElementById("p_prompt").innerText;
-            const n_prompt = document.getElementById("n_prompt").innerText;
             let seed = document.getElementById("seed").value;
             if (seed == '0' || seed == '-1') {
                 seed = Math.random().toString().slice(9);
             }
-            return p_prompt, n_prompt, seed;
+            return seed;
 
         }
         function txt2img() {
-            p_prompt, n_prompt, seed = getparams();
+            const n_prompt = document.getElementById("n_prompt").value;
+            const p_prompt = document.getElementById("p_prompt").value;
+            const seed = getparams();
+            console.log(p_prompt,n_prompt,seed);
             param = {
                 "prompt":p_prompt,
                 "negative_prompt":n_prompt,
