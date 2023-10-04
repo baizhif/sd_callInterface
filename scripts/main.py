@@ -6,11 +6,10 @@ from fastapi import FastAPI
 
 from modules import script_callbacks
 
-self_folder = __file__.rsplit("/",1)[1]
+extensions_path = __file__.split("/extensions",1)[0]
+self_folder = os.path.join(extensions_path,"extensions/callInterface")
 with open(os.path.join(self_folder,"easy_ui.html"),"r") as f:
     callInterface_html = f.read()
-
-extensions_path = self_folder.split("/extensions",1)[0]
 
 def on_ui_tabs():
     with gr.Blocks(analytics_enabled=False) as ui_component:
