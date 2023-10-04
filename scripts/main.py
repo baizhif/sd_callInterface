@@ -3,7 +3,7 @@ import os
 import requests
 
 from fastapi import FastAPI
-
+from fastapi.responses import HTMLResponse
 from modules import script_callbacks
 
 extensions_path = __file__.split("/extensions",1)[0]
@@ -18,7 +18,7 @@ def on_ui_tabs():
         return [(ui_component, "callInterface", "callInterface")]
     
 def on_app_started(_: gr.Blocks, app: FastAPI) -> None:
-    @app.get("/callInterface/easy_ui.html")
+    @app.get("/callInterface/easy_ui.html",response_class=HTMLResponse)
     def welcome():
         return callInterface_html
 
