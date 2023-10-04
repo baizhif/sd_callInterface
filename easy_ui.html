@@ -46,17 +46,14 @@
             const url =  '/callInterface/api/txt2img';
             xhr.open("post", url,true);
             xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-            xhr.onreadystatechange = function () {
-            if (xhr.readyState == 4 &&  xhr.status === 200) {
-                console.log("后端返回的结果："+this.response);
+            xhr.onload = function () {
                 const img = document.createElement("img");
                 img.src = "data:image/png;base64," + this.responseText;
                 show_img_div.insertBefore(img,show_img_div.firstChild);
             }
             xhr.send(JSON.stringify(param));
-            
-	};
-        }
+
+        };
     </script>
 </body>
 
