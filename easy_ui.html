@@ -10,74 +10,121 @@
 <body>
     <style>
         :root {
-        --backgroung_color: rgb(13, 17, 23);
-        --fontColor: white
+            --backgroung_color: rgb(13, 17, 23);
+            --fontColor: white
         }
-        .textarea_c{
-            font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
+
+        .textarea_c {
+            font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
         }
-        *{
+
+        * {
             background-color: var(--backgroung_color);
             color: var(--fontColor);
         }
-        #generate_button{
+
+        #generate_button {
             padding: 15px 32px;
             background-color: blueviolet;
             border-radius: 8px;
             display: inline-block;
             cursor: pointer;
         }
-        
     </style>
-    <div id="txt2img" style="margin-bottom: 20px;">
-        <textarea style="width: 100%;" rows="8" placeholder="正面prompt" id="p_prompt" class="textarea_c">masterpiece, best quality, </textarea>
-        <textarea style="width: 100%;" rows="8" placeholder="负面prompt" id="n_prompt" class="textarea_c">EasyNegative, </textarea>
+    <div style="display: flex;">
+        <span style="width: 14%;">后端requests请求URL:</span><input type="text" value="http://127.0.0.1:7860/" style="width: 86%;" id="tgt_url"/>
+    </div>
+    <div id="txt2img" style="margin-bottom: 20px; margin-top: 20px;">
+        <textarea style="width: 100%;" rows="8" placeholder="正面prompt" id="p_prompt"
+            class="textarea_c">masterpiece, best quality, </textarea>
+        <textarea style="width: 100%;" rows="8" placeholder="负面prompt" id="n_prompt"
+            class="textarea_c">EasyNegative, </textarea>
         <span>宽度: </span><input type="number" min="8" value="512" placeholder="width" id="width">
         <span>高度: </span><input type="number" min="8" value="768" placeholder="height" id="height">
-        <span>提示词相关性: </span><input type="number" min="1" value="11" placeholder="提示词相关性(cfg_scale)" id="cfg_scale">
+        <span>提示词相关性: </span><input type="number" min="1" value="8" placeholder="提示词相关性(cfg_scale)" id="cfg_scale">
         <span>步数: </span><input type="number" min="1" value="24" placeholder="steps" id="steps">
-        <span>种子: </span><input type="number" value="-1" min="-1" placeholder="seed" id="seed"/>
+        <span>种子: </span><input type="number" value="-1" min="-1" placeholder="seed" id="seed" />
     </div>
     <div style="margin-bottom: 20px;">
-        <span>采样方法: <select id="sampler_index">
-            <option>Euler</option>
-            <option>Euler a</option>
-            <option>DPM++ 2M</option>
-            <option selected>DPM++ 2M Karras</option>
-            <option>DPM++ 2M SDE</option>
-            <option>DPM++ 2M SDE Karras</option>
-            <option>DPM++ 2M SDE Exponential</option>
-            <option>DPM++ 2M SDE Heun</option>
-            <option>DPM++ 2M SDE Heun Karras</option>
-            <option>DPM++ 2M SDE Heun Exponential</option>
-            <option>DPM++ 3M SDE</option>
-            <option>DPM++ 3M SDE Karras</option>
-            <option>DPM++ 3M SDE Exponential</option>
-            <option>DPM++ SDE Karras</option>
-        </select></span>
+        <input type="file" style="display:none;" id="selectPic" accept="image/*" />
+        <span style="margin-right: 12px;">采样方法: <select id="sampler_index">
+                <option>Euler</option>
+                <option>Euler a</option>
+                <option>DPM++ 2M</option>
+                <option selected>DPM++ 2M Karras</option>
+                <option>DPM++ 2M SDE</option>
+                <option>DPM++ 2M SDE Karras</option>
+                <option>DPM++ 2M SDE Exponential</option>
+                <option>DPM++ 2M SDE Heun</option>
+                <option>DPM++ 2M SDE Heun Karras</option>
+                <option>DPM++ 2M SDE Heun Exponential</option>
+                <option>DPM++ 3M SDE</option>
+                <option>DPM++ 3M SDE Karras</option>
+                <option>DPM++ 3M SDE Exponential</option>
+                <option>DPM++ SDE Karras</option>
+            </select></span>
+        <button onclick="selectPic()">选图</button>
+        <button onclick="cancelImg()" style="display:none;" id="cancelImg_button">取消</button>
     </div>
     <div>
         <button onclick="hr_pic()" id="hr_button" style="margin-right: 20px;">高清修复(关)</button>
-        <span>放大倍数: </span><input type="number" min="1" step="0.1" value="2" id="magnification"/>
-        <span>重回幅度: </span> <input type="number" min="0.01" step="0.01" value="0.6" id="denoising_strength"/>
+        <span>放大倍数: </span><input type="number" min="1" step="0.1" value="2" id="magnification" />
+        <span>重回幅度: </span> <input type="number" min="0.01" step="0.01" value="0.6" id="denoising_strength" />
         <span>放大算法: <select id="hr_upscaler"></select></span>
     </div>
     <div style="position:relative;top:10px;text-align: center;">
-        <button onclick="txt2img()" id="generate_button">生成</button>
+        <button onclick="generate()" id="generate_button">生成</button>
     </div>
     <div id="show_img"></div>
 
     <script>
+
+        function getWH(base64) {
+            var img = new Image();
+            img.src = base64;
+            img.onload = function () {
+                document.getElementById("width").value = img.width;
+                document.getElementById("height").value = img.height;
+                img.style.maxWidth = "300px";
+                document.getElementById("show_img").insertBefore(img, document.getElementById("show_img").firstChild);
+            }
+        }
+
+        function cancelImg() {
+            img_base64 = 0;
+            document.getElementById("width").value = 512;
+            document.getElementById("height").value = 768;
+            document.getElementById("cancelImg_button").style.display = "none";
+        }
+
+        let img_base64;
+
+        function selectPic() {
+            const selectPic = document.getElementById("selectPic");
+            selectPic.click();
+            selectPic.onchange = function (evt) {
+                if (evt.target.files.length != 0) {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(evt.target.files[0]);
+                    reader.onload = function () {
+                        img_base64 = this.result;
+                        getWH(img_base64);
+                        document.getElementById("cancelImg_button").style.display = "inline";
+                    }
+                }
+            }
+        }
+
         setUpscalers();
         function setUpscalers() {
             const xhr = new XMLHttpRequest();
-            xhr.open("get","/callInterface/api/upscalers",true)
-            xhr.onload = function(){
-                const upscalers = this.responseText.replaceAll('"','').split(',')
+            xhr.open("get", "/callInterface/api/upscalers", true)
+            xhr.onload = function () {
+                const upscalers = this.responseText.replaceAll('"', '').split(',')
                 for (upscaler in upscalers) {
                     let upscaler_option = document.createElement("option");
                     upscaler_option.innerText = upscalers[upscaler];
-                    document.getElementById("hr_upscaler").appendChild(upscaler_option,document.getElementById("hr_upscaler").firstChild);
+                    document.getElementById("hr_upscaler").appendChild(upscaler_option, document.getElementById("hr_upscaler").firstChild);
                 }
             }
             xhr.send();
@@ -88,22 +135,22 @@
             if (hr_button.innerText === "高清修复(关)") {
                 hr_button.innerText = "高清修复(开)";
                 is_hr = true;
-            }else{
+            } else {
                 hr_button.innerText = "高清修复(关)";
                 is_hr = false;
             }
         }
-        let backgroung_color,fontColor;
+        let backgroung_color, fontColor;
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches || window.location['href'].endsWith('__theme=dark')) {
             backgroung_color = "rgb(13, 17, 23)";
             fontColor = "white";
-        }else{
+        } else {
             backgroung_color = "white";
             fontColor = "black";
         }
         const show_img_div = document.getElementById("show_img");
 
-        function txt2img() {
+        function generate() {
             const n_prompt = document.getElementById("n_prompt").value;
             const p_prompt = document.getElementById("p_prompt").value;
             const cfg_scale = document.getElementById("cfg_scale").value;
@@ -114,36 +161,40 @@
             let seed = document.getElementById("seed").value;
             seed = (seed == '0' || seed == '-1') ? seed = Math.random().toString().slice(9) : seed
             param = {
-                "prompt":p_prompt,
-                "negative_prompt":n_prompt,
-                "seed":seed,
-                "cfg_scale":cfg_scale,
-                "steps":steps,
-                "width":width,
-                "height":height,
-                "sampler_index":sampler_index,
+                "prompt": p_prompt,
+                "negative_prompt": n_prompt,
+                "seed": seed,
+                "cfg_scale": cfg_scale,
+                "steps": steps,
+                "width": width,
+                "height": height,
+                "sampler_index": sampler_index,
 
             };
-            if (is_hr) {
+            if (img_base64) {
+                param["init_images"] = [img_base64];
+            }
+            if (is_hr && !img_base64) {
                 param["enable_hr"] = true;
                 param["hr_scale"] = document.getElementById("magnification").value;
                 param["denoising_strength"] = document.getElementById("denoising_strength").value;
                 param["hr_upscaler"] = document.getElementById("hr_upscaler").options[document.getElementById("hr_upscaler").selectedIndex].text;
             }
             const xhr = new XMLHttpRequest();
-            const url =  '/callInterface/api/txt2img';
-            xhr.open("post", url,true);
+            const url = '/callInterface/api/generate';
+            xhr.open("post", url, true);
             xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+            xhr.setRequestHeader("tgt_url",document.getElementById("tgt_url").value);
             xhr.onload = function () {
                 if (this.status == 200) {
                     const img = document.createElement("img");
                     img.style.maxWidth = "300px";
-                    img.src = "data:image/png;base64," + this.responseText.replaceAll('"','');
-                    show_img_div.insertBefore(img,show_img_div.firstChild);
-                }else{
-                    alert("error: "+this.responseText)
+                    img.src = "data:image/png;base64," + this.responseText.replaceAll('"', '');
+                    show_img_div.insertBefore(img, show_img_div.firstChild);
+                } else {
+                    alert("error: " + this.responseText)
                 }
-                
+
             }
             xhr.send(JSON.stringify(param));
 
