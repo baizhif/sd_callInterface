@@ -32,6 +32,6 @@ def on_app_started(_: gr.Blocks, app: FastAPI) -> None:
     def getUpscaler():
         response = requests.get("http://127.0.0.1:7860/sdapi/v1/upscalers")
         if response.status_code == 200:
-            return ",".join([upscaler for upscaler in response.json() if upscaler["name"] !="None"])
+            return ",".join([upscaler["name"] for upscaler in response.json() if upscaler["name"] !="None"])
 script_callbacks.on_ui_tabs(on_ui_tabs)
 script_callbacks.on_app_started(on_app_started)
