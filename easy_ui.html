@@ -63,7 +63,7 @@
                 <option>DPM++ 3M SDE Exponential</option>
                 <option>DPM++ SDE Karras</option>
             </select></span>
-        <span>VAE<select id="VAE"></select></span>
+        <span onclick="RefreshAVE()" style="cursor: pointer;margin-right: 10px;">VAE<select id="VAE"></select></span>
         <button onclick="selectPic()">选图</button>
         <button onclick="cancelImg()" style="display:none;" id="cancelImg_button">取消</button>
     </div>
@@ -79,6 +79,10 @@
     <div id="show_img"></div>
 
     <script>
+
+        function RefreshAVE(){
+            easyGetOptions("sdapi/v1/sd-vae","VAE");
+        }
 
         function getWH(base64) {
             var img = new Image();
@@ -117,17 +121,19 @@
         }
 
         easyGetOptions("sdapi/v1/upscalers","hr_upscaler");
-        // easyGetOptions("sdapi/v1/sd-vae","VAE");
+        easyGetOptions("sdapi/v1/sd-vae","VAE");
         function easyGetOptions(tSrc,select_id) {
             const xhr = new XMLHttpRequest();
             xhr.open("get", "/callInterface/api/easyGetOptions", true)
             xhr.setRequestHeader("tgt_url",document.getElementById("tgt_url").value + tSrc);
             xhr.onload = function () {
+                const select = document.getElementById(select_id);
+                select.innerHTML = "";
                 const results = this.responseText.replaceAll('"', '').split(',')
                 for (result in results) {
                     let result_option = document.createElement("option");
                     result_option.innerText = results[result];
-                    document.getElementById(select_id).appendChild(result_option, document.getElementById(select_id).firstChild);
+                    select.appendChild(result_option, select.firstChild);
                 }
             }
             xhr.send();
