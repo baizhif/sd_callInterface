@@ -253,10 +253,15 @@
         height: 100%;
         display: none;
       ">
-        <img id="bigimg" src="" />
+        <img id="bigimg" src="" ondblclick="bigimgclick()"/>
     </div>
 </body>
 <script>
+    function bigimgclick() {
+        outerdiv.style.display = "none";
+        initScale = 1;
+        window.removeEventListener("wheel", handleStopWheel);
+    }
     /**
      * 实现图片点击放大、拖拽、滚轴滚动焦点缩放功能，相关参数、函数声明
      */
