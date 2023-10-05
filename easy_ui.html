@@ -119,6 +119,7 @@
         function setUpscalers() {
             const xhr = new XMLHttpRequest();
             xhr.open("get", "/callInterface/api/upscalers", true)
+            xhr.setRequestHeader("tgt_url",document.getElementById("tgt_url").value);
             xhr.onload = function () {
                 const upscalers = this.responseText.replaceAll('"', '').split(',')
                 for (upscaler in upscalers) {
