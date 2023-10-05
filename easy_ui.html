@@ -80,6 +80,16 @@
 
     <script>
 
+        function downloadImage(){
+            const img = event.target;
+            const a = document.createElement("a");
+            a.href = img.src;
+            a.download = Date.now() + ".png";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
         function RefreshVAE(){
             easyGetOptions("sdapi/v1/sd-vae","VAE");
         }
@@ -203,6 +213,7 @@
                     const img = document.createElement("img");
                     img.style.maxWidth = "300px";
                     img.src = "data:image/png;base64," + this.responseText.replaceAll('"', '');
+                    img.ondblclick = downloadImage;
                     show_img_div.insertBefore(img, show_img_div.firstChild);
                 } else {
                     alert("error: " + this.responseText)
