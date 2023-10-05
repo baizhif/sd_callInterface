@@ -36,7 +36,9 @@ def on_app_started(_: gr.Blocks, app: FastAPI) -> None:
     def getUpscaler(request: Request):
         tgt_url = request.headers.get("tgt_url").strip()
         response = requests.get(tgt_url)
-        if response.status_code == 200:
+        if response.status_code == 200 and tgt_url.endswith("upscalers"):
             return ",".join([upscaler["name"] for upscaler in response.json() if upscaler["name"] !="None"])
+        elif response.status_code == 200 and tgt_url.endswith("sd-vae"):
+            return ",".join([model["model_name"] for model in response.json() if model] + ["None","Automatic"])
 script_callbacks.on_ui_tabs(on_ui_tabs)
 script_callbacks.on_app_started(on_app_started)
