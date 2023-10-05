@@ -32,7 +32,8 @@
         }
     </style>
     <div style="display: flex;">
-        <span style="width: 14%;">后端requests请求URL:</span><input type="text" value="http://127.0.0.1:7860/" style="width: 86%;" id="tgt_url"/>
+        <span style="width: 14%;">后端requests请求URL:</span><input type="text" value="http://127.0.0.1:7860/"
+            style="width: 86%;" id="tgt_url" />
     </div>
     <div id="txt2img" style="margin-bottom: 20px; margin-top: 20px;">
         <textarea style="width: 100%;" rows="8" placeholder="正面prompt" id="p_prompt"
@@ -76,28 +77,44 @@
     <div style="position:relative;top:10px;text-align: center;">
         <button onclick="generate()" id="generate_button">生成</button>
     </div>
-    <div id="show_img"></div>
-
+    <div class="imgBox" id="show_img"></div>
     <script>
-
-        function downloadImage(){
-            const img = event.target;
-            const a = document.createElement("a");
-            a.href = img.src;
-            a.download = Date.now() + ".png";
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+        let count = 0;
+        function downloadImage(event) {
+            count += 1;
+            setTimeout(() => {
+                if (count === 1) {
+                    const that = event.target;
+                    image.style.transform = "scale(1)";
+                    imgShow(that);
+                    window.addEventListener("wheel", handleStopWheel, {
+                        passive: false,
+                    });
+                    imgDrag();
+                    count = 0;
+                }
+                else if (count === 2) {
+                    const img = event.target;
+                    const a = document.createElement("a");
+                    a.href = img.src;
+                    a.download = Date.now() + ".png";
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    count = 0;
+                }
+            }, 200);
         }
 
-        function RefreshVAE(){
-            easyGetOptions("sdapi/v1/sd-vae","VAE");
+        function RefreshVAE() {
+            easyGetOptions("sdapi/v1/sd-vae", "VAE");
         }
 
         function getWH(base64) {
             var img = new Image();
             img.src = base64;
             img.onload = function () {
+                img.addEventListener("click", downloadImage);
                 document.getElementById("width").value = img.width;
                 document.getElementById("height").value = img.height;
                 img.style.maxWidth = "300px";
@@ -130,12 +147,12 @@
             }
         }
 
-        easyGetOptions("sdapi/v1/upscalers","hr_upscaler");
-        easyGetOptions("sdapi/v1/sd-vae","VAE");
-        function easyGetOptions(tSrc,select_id) {
+        easyGetOptions("sdapi/v1/upscalers", "hr_upscaler");
+        easyGetOptions("sdapi/v1/sd-vae", "VAE");
+        function easyGetOptions(tSrc, select_id) {
             const xhr = new XMLHttpRequest();
             xhr.open("get", "/callInterface/api/easyGetOptions", true)
-            xhr.setRequestHeader("tgt_url",document.getElementById("tgt_url").value + tSrc);
+            xhr.setRequestHeader("tgt_url", document.getElementById("tgt_url").value + tSrc);
             xhr.onload = function () {
                 const select = document.getElementById(select_id);
                 select.innerHTML = "";
@@ -189,8 +206,8 @@
                 "width": width,
                 "height": height,
                 "sampler_index": sampler_index,
-                "override_settings":{
-                    "sd_vae":sd_vae,
+                "override_settings": {
+                    "sd_vae": sd_vae,
                 }
             };
             if (img_base64) {
@@ -207,13 +224,13 @@
             const url = '/callInterface/api/generate';
             xhr.open("post", url, true);
             xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-            xhr.setRequestHeader("tgt_url",document.getElementById("tgt_url").value);
+            xhr.setRequestHeader("tgt_url", document.getElementById("tgt_url").value);
             xhr.onload = function () {
                 if (this.status == 200) {
                     const img = document.createElement("img");
                     img.style.maxWidth = "300px";
                     img.src = "data:image/png;base64," + this.responseText.replaceAll('"', '');
-                    img.ondblclick = downloadImage;
+                    img.addEventListener("click", downloadImage);
                     show_img_div.insertBefore(img, show_img_div.firstChild);
                 } else {
                     alert("error: " + this.responseText)
@@ -224,6 +241,191 @@
 
         };
     </script>
+
+    <!-- 以下代码来自 https://blog.csdn.net/qq_58441775/article/details/131963598 -->
+    <div id="outerdiv" style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 2;
+        width: 100%;
+        height: 100%;
+        display: none;
+      ">
+        <img id="bigimg" src="" />
+    </div>
 </body>
+<script>
+    /**
+     * 实现图片点击放大、拖拽、滚轴滚动焦点缩放功能，相关参数、函数声明
+     */
+    let imgWidth, imgHeight; // 图片点击放大初始尺寸参数
+    let maxZoom = 4; //最大缩放倍数
+    let minreduce = 0.5; // 最小缩放倍数
+    let initScale = 1; //滚动缩放初始倍数，并不是图片点击放大的倍数
+    let isPointerdown = false; //鼠标按下的标识
+    //记录鼠标按下坐标和按下移动时坐标
+    let lastPointermove = {
+        x: 0,
+        y: 0,
+    };
+    //移动过程从上一个坐标到下一个坐标之间的差值
+    let diff = {
+        x: 0,
+        y: 0,
+    };
+    //图片放大后左上角的坐标，主要结合diff参数用于鼠标焦点缩放时图片偏移坐标
+    let x = 0;
+    let y = 0;
+
+    // 记录节点
+    const outerdiv = document.querySelector("#outerdiv");
+    const image = outerdiv.querySelector("#bigimg");
+    function imgShow(that) {
+        let src = that.getAttribute("src");
+        image.setAttribute("src", src);
+
+        // 设置尺寸和调整比例
+        let windowW = document.documentElement.clientWidth;
+        let windowH = document.documentElement.clientHeight;
+        let realWidth = image.naturalWidth; //获取图片的原始宽度
+        let realHeight = image.naturalHeight; //获取图片的原始高度
+        let outsideScale = 0.8;
+        let belowScale = 1.4;
+        let realRatio = realWidth / realHeight;
+        let windowRatio = windowW / windowH;
+
+        // 说明：下面是我自己的一些判断逻辑，大致意思就是图片的真实尺寸大于屏幕尺寸则使用屏幕尺寸，如果小于屏幕尺寸就使用自己本身的尺寸；并根据大于或者小于的比例对图片的尺寸进一步调整。coder可以根据自己的要求进行修改。
+        if (realRatio >= windowRatio) {
+            if (realWidth > windowW) {
+                imgWidth = windowH * outsideScale;
+                imgHeight = (imgWidth / realWidth) * realHeight;
+            } else {
+                if (realWidth * belowScale < windowW) {
+                    imgWidth = realWidth * (belowScale - 0.2);
+                    imgHeight = (imgWidth / realWidth) * realHeight;
+                } else {
+                    imgWidth = realWidth;
+                    imgHeight = realHeight;
+                }
+            }
+        } else {
+            if (realHeight > windowH) {
+                imgHeight = windowH * outsideScale;
+                imgWidth = (imgHeight / realHeight) * realWidth;
+            } else {
+                if (realHeight * belowScale < windowW) {
+                    imgHeight = realHeight * (belowScale - 0.2);
+                    imgWidth = (imgHeight / realHeight) * realWidth;
+                } else {
+                    imgWidth = realWidth;
+                    imgHeight = realHeight;
+                }
+            }
+        }
+
+        //设置放大图片的尺寸、偏移量并展示
+        image.style.width = imgWidth + "px";
+        image.style.height = imgHeight + "px";
+        x = (windowW - imgWidth) * 0.5;
+        y = (windowH - imgHeight) * 0.5;
+        image.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+        outerdiv.style.display = "block";
+
+        // 点击蒙版及外面区域放大图片关闭
+        outerdiv.onclick = () => {
+            outerdiv.style.display = "none";
+            initScale = 1;
+            window.removeEventListener("wheel", handleStopWheel);
+        };
+
+        // 阻止事件冒泡
+        image.onclick = (e) => {
+            e.stopPropagation();
+        };
+    }
+
+    function handleStopWheel(e) {
+        let itemSizeChange = 1.1; //每一次滚动放大的倍数
+        if (e.target.id == "bigimg") {
+            // 说明：e.dataY如果大于0则表示鼠标向下滚动，反之则向上滚动，这里设计为向上滚动为缩小，向下滚动为放大
+            if (e.deltaY < 0) {
+                itemSizeChange = 1 / 1.1;
+            }
+            let _initScale = initScale * itemSizeChange;
+
+            // 说明：在超过或低于临界值时，虽然让initScale等于maxZoom或minreduce，但是在后续的判断中放大图片的最终倍数并没有达到maxZoom或minreduce，而是跳过。
+            if (_initScale > maxZoom) {
+                initScale = maxZoom;
+            } else if (_initScale < minreduce) {
+                initScale = minreduce;
+            } else {
+                initScale = _initScale;
+            }
+            const origin = {
+                x: (itemSizeChange - 1) * imgWidth * 0.5,
+                y: (itemSizeChange - 1) * imgHeight * 0.5,
+            };
+            // 计算偏移量
+            if (_initScale < maxZoom && _initScale > minreduce) {
+                x -= (itemSizeChange - 1) * (e.clientX - x) - origin.x;
+                y -= (itemSizeChange - 1) * (e.clientY - y) - origin.y;
+                e.target.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${initScale})`;
+            }
+        }
+
+        // 阻止默认事件
+        e.preventDefault();
+    }
+
+    function imgDrag() {
+        // 绑定 鼠标按下事件
+        image.addEventListener("pointerdown", pointerdown);
+        // 绑定 鼠标移动事件
+        image.addEventListener("pointermove", pointermove);
+        image.addEventListener("pointerup", function (e) {
+            if (isPointerdown) {
+                isPointerdown = false;
+            }
+        });
+        image.addEventListener("pointercancel", function (e) {
+            if (isPointerdown) {
+                isPointerdown = false;
+            }
+        });
+    }
+
+    function pointerdown(e) {
+        isPointerdown = true;
+
+        // 说明：Element.setPointerCapture()将特定元素指定为未来指针事件的捕获目标。指针的后续事件将以捕获元素为目标，直到捕获被释放。可以理解为：在窗口不是全屏情况下，我在拖动放大图片时即使鼠标移出可窗口之外，此时事件还是捕获在该放大图片上。
+        image.setPointerCapture(e.pointerId);
+
+        lastPointermove = {
+            x: e.clientX,
+            y: e.clientY,
+        };
+    }
+
+    function pointermove(e) {
+        if (isPointerdown) {
+            const current1 = {
+                x: e.clientX,
+                y: e.clientY,
+            };
+            diff.x = current1.x - lastPointermove.x;
+            diff.y = current1.y - lastPointermove.y;
+            lastPointermove = {
+                x: current1.x,
+                y: current1.y,
+            };
+            x += diff.x;
+            y += diff.y;
+            image.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${initScale})`;
+        }
+        e.preventDefault();
+    }
+</script>
 
 </html>
