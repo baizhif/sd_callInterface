@@ -29,7 +29,7 @@
         }
         
     </style>
-    <div id="txt2img">
+    <div id="txt2img" style="margin-bottom: 20px;">
         <textarea style="width: 100%;" rows="8" placeholder="正面prompt" id="p_prompt" class="textarea_c">masterpiece, best quality, </textarea>
         <textarea style="width: 100%;" rows="8" placeholder="负面prompt" id="n_prompt" class="textarea_c">EasyNegative, </textarea>
         <span>宽度: </span><input type="number" min="8" value="512" placeholder="width" id="width">
@@ -38,11 +38,29 @@
         <span>步数: </span><input type="number" min="1" value="24" placeholder="steps" id="steps">
         <span>种子: </span><input type="number" value="-1" min="-1" placeholder="seed" id="seed"/>
     </div>
-    <br/>
+    <div style="margin-bottom: 20px;">
+        <span>采样方法: <select id="sampler_index">
+            <option>Euler</option>
+            <option>Euler a</option>
+            <option>DPM++ 2M</option>
+            <option selected>DPM++ 2M Karras</option>
+            <option>DPM++ 2M SDE</option>
+            <option>DPM++ 2M SDE Karras</option>
+            <option>DPM++ 2M SDE Exponential</option>
+            <option>DPM++ 2M SDE Heun</option>
+            <option>DPM++ 2M SDE Heun Karras</option>
+            <option>DPM++ 2M SDE Heun Exponential</option>
+            <option>DPM++ 3M SDE</option>
+            <option>DPM++ 3M SDE Karras</option>
+            <option>DPM++ 3M SDE Exponential</option>
+            <option>DPM++ SDE Karras</option>
+        </select></span>
+    </div>
     <div>
         <button onclick="hr_pic()" id="hr_button" style="margin-right: 20px;">高清修复(关)</button>
-        <span>放大倍数: </span><input type="number" min="0.1" step="0.1" value="2" id="magnification"/>
+        <span>放大倍数: </span><input type="number" min="1" step="0.1" value="2" id="magnification"/>
         <span>重回幅度: </span> <input type="number" min="0.01" step="0.01" value="0.6" id="denoising_strength"/>
+        <span>放大算法: <select id="hr_upscaler"></select></span>
     </div>
     <div style="position:relative;top:10px;text-align: center;">
         <button onclick="txt2img()" id="generate_button">生成</button>
@@ -50,6 +68,19 @@
     <div id="show_img"></div>
 
     <script>
+        function setUpscalers() {
+            const xhr = new XMLHttpRequest();
+            xhr.open("get","/callInterface/api/upscalers",true)
+            xhr.onload = function(){
+                const upscalers = this.responseText.replaceAll('"','').split(',')
+                for (upscaler in upscalers) {
+                    let upscaler_option = document.createElement("option");
+                    upscaler_option.innerText = upscaler;
+                    document.getElementById("hr_upscaler").appendChild(upscaler_option,document.getElementById("hr_upscaler").firstChild);
+                }
+            }
+            xhr.send();
+        }
         let is_hr = false;
         function hr_pic() {
             const hr_button = document.getElementById("hr_button");
@@ -71,14 +102,6 @@
         }
         const show_img_div = document.getElementById("show_img");
 
-        function getparams() {
-            let seed = document.getElementById("seed").value;
-            if (seed == '0' || seed == '-1') {
-                seed = Math.random().toString().slice(9);
-            }
-            return seed;
-
-        }
         function txt2img() {
             const n_prompt = document.getElementById("n_prompt").value;
             const p_prompt = document.getElementById("p_prompt").value;
@@ -86,7 +109,9 @@
             const steps = document.getElementById("steps").value;
             const width = document.getElementById("width").value - document.getElementById("width").value % 8;
             const height = document.getElementById("height").value - document.getElementById("height").value % 8;
-            const seed = getparams();
+            const sampler_index = document.getElementById("sampler_index").options[document.getElementById("sampler_index").selectedIndex].text;
+            let seed = document.getElementById("seed").value;
+            seed = (seed == '0' || seed == '-1') ? seed = Math.random().toString().slice(9) : seed
             param = {
                 "prompt":p_prompt,
                 "negative_prompt":n_prompt,
@@ -95,13 +120,14 @@
                 "steps":steps,
                 "width":width,
                 "height":height,
+                "sampler_index":sampler_index,
+
             };
             if (is_hr) {
                 param["enable_hr"] = true;
-                magnification = document.getElementById("magnification").value;
-                param["hr_resize_x"] = width*magnification;
-                param["hr_resize_y"] = height*magnification;
+                param["hr_scale"] = document.getElementById("magnification").value;
                 param["denoising_strength"] = document.getElementById("denoising_strength").value;
+                param["hr_upscaler"] = document.getElementById("hr_upscaler").options[document.getElementById("hr_upscaler").selectedIndex].text;
             }
             const xhr = new XMLHttpRequest();
             const url =  '/callInterface/api/txt2img';
