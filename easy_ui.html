@@ -33,7 +33,7 @@
         <textarea style="width: 100%;" rows="8" placeholder="正面prompt" id="p_prompt" class="textarea_c">masterpiece, best quality, </textarea>
         <textarea style="width: 100%;" rows="8" placeholder="负面prompt" id="n_prompt" class="textarea_c">EasyNegative, </textarea>
         <span>宽度: </span><input type="number" min="8" value="512" placeholder="width" id="width">
-        <span>长度: </span><input type="number" min="8" value="768" placeholder="height" id="height">
+        <span>高度: </span><input type="number" min="8" value="768" placeholder="height" id="height">
         <span>提示词相关性: </span><input type="number" min="1" value="11" placeholder="提示词相关性(cfg_scale)" id="cfg_scale">
         <span>步数: </span><input type="number" min="1" value="24" placeholder="steps" id="steps">
         <span>种子: </span><input type="number" value="-1" min="-1" placeholder="seed" id="seed"/>
@@ -137,7 +137,7 @@
             xhr.onload = function () {
                 if (this.status == 200) {
                     const img = document.createElement("img");
-                    img.style.maxWidth = "512px";
+                    img.style.maxWidth = "300px";
                     img.src = "data:image/png;base64," + this.responseText.replaceAll('"','');
                     show_img_div.insertBefore(img,show_img_div.firstChild);
                 }else{
