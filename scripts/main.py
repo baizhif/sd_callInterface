@@ -2,7 +2,7 @@ import gradio as gr
 import os
 import requests
 
-from fastapi import FastAPI
+from fastapi import FastAPI,Request
 from fastapi.responses import HTMLResponse
 from modules import script_callbacks
 
@@ -22,15 +22,20 @@ def on_app_started(_: gr.Blocks, app: FastAPI) -> None:
     def welcome():
         return callInterface_html
 
-    @app.post("/callInterface/api/txt2img")
-    def callInterface(data:dict):
-        response = requests.post("http://127.0.0.1:7860/sdapi/v1/txt2img",json=data)
+    @app.post("/callInterface/api/generate")
+    def callInterface(data:dict,request: Request):
+        tgt_url = request.headers.get("tgt_url").strip()
+        if "init_images" in data:
+            response = requests.post(f"{tgt_url}sdapi/v1/img2img",json=data)
+        else:
+            response = requests.post(f"{tgt_url}sdapi/v1/txt2img",json=data)
         if response.status_code == 200:
             return response.json()["images"][0]
         raise ConnectionError
     @app.get("/callInterface/api/upscalers")
-    def getUpscaler():
-        response = requests.get("http://127.0.0.1:7860/sdapi/v1/upscalers")
+    def getUpscaler(request: Request):
+        tgt_url = request.headers.get("tgt_url").strip()
+        response = requests.get(f"{tgt_url}sdapi/v1/upscalers")
         if response.status_code == 200:
             return ",".join([upscaler["name"] for upscaler in response.json() if upscaler["name"] !="None"])
 script_callbacks.on_ui_tabs(on_ui_tabs)
