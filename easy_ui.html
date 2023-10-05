@@ -76,7 +76,7 @@
                 const upscalers = this.responseText.replaceAll('"','').split(',')
                 for (upscaler in upscalers) {
                     let upscaler_option = document.createElement("option");
-                    upscaler_option.innerText = upscaler;
+                    upscaler_option.innerText = upscalers[upscaler];
                     document.getElementById("hr_upscaler").appendChild(upscaler_option,document.getElementById("hr_upscaler").firstChild);
                 }
             }
