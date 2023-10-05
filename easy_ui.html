@@ -63,7 +63,7 @@
                 <option>DPM++ 3M SDE Exponential</option>
                 <option>DPM++ SDE Karras</option>
             </select></span>
-        <span onclick="RefreshAVE()" style="cursor: pointer;margin-right: 10px;">VAE<select id="VAE"></select></span>
+        <span onclick="RefreshVAE()" style="cursor: pointer;margin-right: 10px;">VAE<select id="VAE"></select></span>
         <button onclick="selectPic()">选图</button>
         <button onclick="cancelImg()" style="display:none;" id="cancelImg_button">取消</button>
     </div>
@@ -80,7 +80,7 @@
 
     <script>
 
-        function RefreshAVE(){
+        function RefreshVAE(){
             easyGetOptions("sdapi/v1/sd-vae","VAE");
         }
 
@@ -167,6 +167,7 @@
             const width = document.getElementById("width").value - document.getElementById("width").value % 8;
             const height = document.getElementById("height").value - document.getElementById("height").value % 8;
             const sampler_index = document.getElementById("sampler_index").options[document.getElementById("sampler_index").selectedIndex].text;
+            const sd_vae = document.getElementById("VAE").options[document.getElementById("VAE").selectedIndex].text;
             let seed = document.getElementById("seed").value;
             seed = (seed == '0' || seed == '-1') ? seed = Math.random().toString().slice(9) : seed
             param = {
@@ -178,7 +179,7 @@
                 "width": width,
                 "height": height,
                 "sampler_index": sampler_index,
-
+                "sd_vae":sd_vae,
             };
             if (img_base64) {
                 param["init_images"] = [img_base64];
