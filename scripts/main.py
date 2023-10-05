@@ -32,10 +32,10 @@ def on_app_started(_: gr.Blocks, app: FastAPI) -> None:
         if response.status_code == 200:
             return response.json()["images"][0]
         raise ConnectionError
-    @app.get("/callInterface/api/upscalers")
+    @app.get("/callInterface/api/easyGetOptions")
     def getUpscaler(request: Request):
         tgt_url = request.headers.get("tgt_url").strip()
-        response = requests.get(f"{tgt_url}sdapi/v1/upscalers")
+        response = requests.get(tgt_url)
         if response.status_code == 200:
             return ",".join([upscaler["name"] for upscaler in response.json() if upscaler["name"] !="None"])
 script_callbacks.on_ui_tabs(on_ui_tabs)
