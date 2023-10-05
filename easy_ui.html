@@ -355,7 +355,7 @@
         let itemSizeChange = 1.1; //每一次滚动放大的倍数
         if (e.target.id == "bigimg") {
             // 说明：e.dataY如果大于0则表示鼠标向下滚动，反之则向上滚动，这里设计为向上滚动为缩小，向下滚动为放大
-            if (e.deltaY < 0) {
+            if (e.deltaY > 0) {
                 itemSizeChange = 1 / 1.1;
             }
             let _initScale = initScale * itemSizeChange;
