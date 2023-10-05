@@ -174,6 +174,7 @@
             };
             if (img_base64) {
                 param["init_images"] = [img_base64];
+                param["denoising_strength"] = document.getElementById("denoising_strength").value;
             }
             if (is_hr && !img_base64) {
                 param["enable_hr"] = true;
