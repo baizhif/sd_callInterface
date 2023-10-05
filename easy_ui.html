@@ -14,13 +14,13 @@
         --fontColor: white
         }
         .textarea_c{
-            font-size: 18px;
+            font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
         }
         *{
             background-color: var(--backgroung_color);
             color: var(--fontColor);
         }
-        button{
+        #generate_button{
             padding: 15px 32px;
             background-color: blueviolet;
             border-radius: 8px;
@@ -32,18 +32,35 @@
     <div id="txt2img">
         <textarea style="width: 100%;" rows="8" placeholder="正面prompt" id="p_prompt" class="textarea_c">masterpiece, best quality, </textarea>
         <textarea style="width: 100%;" rows="8" placeholder="负面prompt" id="n_prompt" class="textarea_c">EasyNegative, </textarea>
-        <input type="number" min="8" value="512" placeholder="width" id="width">
-        <input type="number" min="8" value="768" placeholder="height" id="height">
-        <input type="number" min="1" value="11" placeholder="提示词相关性(cfg_scale)" id="cfg_scale">
-        <input type="number" min="1" value="24" placeholder="steps" id="steps">
-        <input type="number" value="-1" min="-1" placeholder="seed" id="seed"/>
+        <span>宽度: </span><input type="number" min="8" value="512" placeholder="width" id="width">
+        <span>长度: </span><input type="number" min="8" value="768" placeholder="height" id="height">
+        <span>提示词相关性: </span><input type="number" min="1" value="11" placeholder="提示词相关性(cfg_scale)" id="cfg_scale">
+        <span>步数: </span><input type="number" min="1" value="24" placeholder="steps" id="steps">
+        <span>种子: </span><input type="number" value="-1" min="-1" placeholder="seed" id="seed"/>
+    </div>
+    <br/>
+    <div>
+        <button onclick="hr_pic()" id="hr_button" style="margin-right: 20px;">高清修复(关)</button>
+        <span>放大倍数: </span><input type="number" min="0.1" step="0.1" value="2" id="magnification"/>
+        <span>重回幅度: </span> <input type="number" min="0.01" step="0.01" value="0.6" id="denoising_strength"/>
     </div>
     <div style="position:relative;top:10px;text-align: center;">
-        <button onclick="txt2img()">生成</button>
+        <button onclick="txt2img()" id="generate_button">生成</button>
     </div>
     <div id="show_img"></div>
 
     <script>
+        let is_hr = false;
+        function hr_pic() {
+            const hr_button = document.getElementById("hr_button");
+            if (hr_button.innerText === "高清修复(关)") {
+                hr_button.innerText = "高清修复(开)";
+                is_hr = true;
+            }else{
+                hr_button.innerText = "高清修复(关)";
+                is_hr = false;
+            }
+        }
         let backgroung_color,fontColor;
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches || window.location['href'].endsWith('__theme=dark')) {
             backgroung_color = "rgb(13, 17, 23)";
@@ -79,6 +96,13 @@
                 "width":width,
                 "height":height,
             };
+            if (is_hr) {
+                param["enable_hr"] = true;
+                magnification = document.getElementById("magnification").value;
+                param["hr_resize_x"] = width*magnification;
+                param["hr_resize_y"] = height*magnification;
+                param["denoising_strength"] = document.getElementById("denoising_strength").value;
+            }
             const xhr = new XMLHttpRequest();
             const url =  '/callInterface/api/txt2img';
             xhr.open("post", url,true);
