@@ -206,10 +206,12 @@
                 "width": width,
                 "height": height,
                 "sampler_index": sampler_index,
-                "override_settings": {
+            };
+            if (sd_vae !== "default"){
+                param["override_settings"] = {
                     "sd_vae": sd_vae,
                 }
-            };
+            }
             if (img_base64) {
                 param["init_images"] = [img_base64];
                 param["denoising_strength"] = document.getElementById("denoising_strength").value;
