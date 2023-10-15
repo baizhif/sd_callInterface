@@ -33,7 +33,7 @@
     </style>
     <div style="display: flex;">
         <span style="width: 14%;">后端requests请求URL:</span><input type="text" value="http://127.0.0.1:7860/"
-            style="width: 86%;" id="tgt_url" />
+            style="width: 86%;" id="Tgt-Url" />
     </div>
     <div id="txt2img" style="margin-bottom: 20px; margin-top: 20px;">
         <textarea style="width: 100%;" rows="8" placeholder="正面prompt" id="p_prompt"
@@ -152,7 +152,7 @@
         function easyGetOptions(tSrc, select_id) {
             const xhr = new XMLHttpRequest();
             xhr.open("get", "/callInterface/api/easyGetOptions", true)
-            xhr.setRequestHeader("tgt_url", document.getElementById("tgt_url").value + tSrc);
+            xhr.setRequestHeader("Tgt-Url", document.getElementById("Tgt-Url").value + tSrc);
             xhr.onload = function () {
                 const select = document.getElementById(select_id);
                 select.innerHTML = "";
@@ -226,7 +226,7 @@
             const url = '/callInterface/api/generate';
             xhr.open("post", url, true);
             xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-            xhr.setRequestHeader("tgt_url", document.getElementById("tgt_url").value);
+            xhr.setRequestHeader("Tgt-Url", document.getElementById("Tgt-Url").value);
             xhr.onload = function () {
                 if (this.status == 200) {
                     const img = document.createElement("img");
