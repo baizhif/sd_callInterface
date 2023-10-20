@@ -31,6 +31,7 @@
             cursor: pointer;
             /* background-image: linear-gradient(to right, rgba(255,0,0,0), rgba(255,0,0,1)); */
         }
+
         /* #progress {
             background-image: linear-gradient(to right, rgba(255,0,0,0), rgba(255,0,0,1));
         } */
@@ -81,27 +82,37 @@
     <div style="position:relative;top:10px;text-align: center;">
         <button onclick="generate()" id="generate_button">生成</button>
     </div>
-    <div class="progressContainer" style="width: 30%;background-color: var(--fontColor);margin: 8px auto;display: none;" id="progressContainer">
-        <div class="progress" id="progress" style="height:100%;width:50%;text-align: center;background-color: pink;">25%</div>
+    <div class="progressContainer" style="width: 30%;background-color: var(--fontColor);margin: 8px auto;display: none;"
+        id="progressContainer">
+        <div class="progress" id="progress" style="height:100%;width:50%;text-align: center;background-color: pink;">25%
+        </div>
     </div>
     <div class="imgBox" id="show_img"></div>
 
     <script>
         const progress = document.getElementById("progress");
         const progressContainer = document.getElementById("progressContainer");
+        let creat_img = false;
         function Progress() {
             const xhr = new XMLHttpRequest();
-            xhr.open("get","/callInterface/api/getForwarding",true);
-            xhr.setRequestHeader("Tgt-Url",document.getElementById("Tgt-Url").value + "sdapi/v1/progress");
+            xhr.open("get", "/callInterface/api/getForwarding", true);
+            xhr.setRequestHeader("Tgt-Url", document.getElementById("Tgt-Url").value + "sdapi/v1/progress");
             xhr.send();
-            xhr.onload = function(){
+            xhr.onload = function () {
                 const data = JSON.parse(xhr.responseText);
-                console.log(progress.style.width + "% ETA" + Number.parseFloat(data["eta_relative"]).toFixed(1) + "s");
-                console.log(Number.parseInt(data["progress"] * 100)+ "%");
-                progress.style.width = Number.parseInt(data["progress"] * 100)+ "%";
-                progress.style.innerHTML = progress.style.width + "% ETA" + Number.parseFloat(data["eta_relative"]).toFixed(1) + "s";
+                progress.style.width = Number.parseInt(data["progress"] * 100) + "%";
+                progress.innerHTML = progress.style.width + "% ETA: " + Number.parseFloat(data["eta_relative"]).toFixed(1) + "s";
                 if (data["current_image"]) {
-                    console.log(6666666);
+                    if (creat_img) {
+                        show_img_div.firstChild.src = "data:image/png;base64," + data["current_image"];
+                    } else {
+                        const img = document.createElement("img");
+                        img.style.maxWidth = "300px";
+                        img.src = "data:image/png;base64," + data["current_image"];
+                        img.addEventListener("click", downloadImage);
+                        show_img_div.insertBefore(img, show_img_div.firstChild);
+                        creat_img = true;
+                    }
                 }
             }
         }
@@ -237,7 +248,7 @@
                 "height": height,
                 "sampler_index": sampler_index,
             };
-            if (sd_vae !== "default"){
+            if (sd_vae !== "default") {
                 param["override_settings"] = {
                     "sd_vae": sd_vae,
                 }
@@ -263,11 +274,13 @@
                 progress.style.width = "0%";
                 progress.innerHTML = '';
                 if (this.status == 200) {
-                    const img = document.createElement("img");
-                    img.style.maxWidth = "300px";
-                    img.src = "data:image/png;base64," + this.responseText.replaceAll('"', '');
-                    img.addEventListener("click", downloadImage);
-                    show_img_div.insertBefore(img, show_img_div.firstChild);
+                    // const img = document.createElement("img");
+                    // img.style.maxWidth = "300px";
+                    // img.src = "data:image/png;base64," + this.responseText.replaceAll('"', '');
+                    // img.addEventListener("click", downloadImage);
+                    // show_img_div.insertBefore(img, show_img_div.firstChild);
+                    show_img_div.firstChild.src = "data:image/png;base64," + this.responseText.replaceAll('"', '');
+                    creat_img = false;
                 } else {
                     alert("error: " + this.responseText)
                 }
@@ -275,7 +288,7 @@
             }
             xhr.send(JSON.stringify(param));
             progressContainer.style.display = "block";
-            const Interval = setInterval(Progress,1000);
+            const Interval = setInterval(Progress, 1000);
 
         };
     </script>
@@ -291,7 +304,7 @@
         height: 100%;
         display: none;
       ">
-        <img id="bigimg" src="" ondblclick="bigimgclick()"/>
+        <img id="bigimg" src="" ondblclick="bigimgclick()" />
     </div>
 </body>
 <script>
