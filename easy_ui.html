@@ -121,6 +121,7 @@
     <script>
         const generate_button = document.getElementById("generate_button");
         let count = 0;
+        let task_count = 0;
         function downloadImage(event) {
             count += 1;
             setTimeout(() => {
@@ -270,7 +271,10 @@
             xhr.setRequestHeader("Tgt-Url", document.getElementById("Tgt-Url").value);
             xhr.onload = function () {
                 clearInterval(Interval);
-                progressContainer.style.display = "none";
+                task_count --;
+                if (task_count === 0) {
+                    progressContainer.style.display = "none";
+                }
                 progress.style.width = "0%";
                 progress.innerHTML = '';
                 if (this.status == 200) {
@@ -291,6 +295,7 @@
             xhr.send(JSON.stringify(param));
             progressContainer.style.display = "block";
             const Interval = setInterval(Progress, 1000);
+            task_count++;
 
         };
     </script>
