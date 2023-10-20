@@ -257,6 +257,7 @@
             xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
             xhr.setRequestHeader("Tgt-Url", document.getElementById("Tgt-Url").value);
             xhr.onload = function () {
+                clearInterval(Interval);
                 runProgess = false;
                 progressContainer.style.display = "none";
                 progress.style.width = "0%";
@@ -275,9 +276,7 @@
             xhr.send(JSON.stringify(param));
             runProgess = true;
             progressContainer.style.display = "block";
-            while (runProgess) {
-                setTimeout(Progress,1000);
-            }
+            const Interval = setInterval(Progress,1000);
 
         };
     </script>
