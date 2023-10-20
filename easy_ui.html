@@ -126,14 +126,15 @@
         let timeout;
         generate_button.addEventListener("mousedown", function () {
             timeout = setTimeout(function () {
-                console.log(666);
                 if (autoRun) {
                     autoRun = false;
+                    generate_button.innerText = "生成";
                 }
                 else {
                     autoRun = true;
+                    generate_button.innerText = "生成(自动点击中)"
                 }
-            }, 2000)
+            }, 1000)
         })
         generate_button.addEventListener("mouseup",function(){
             clearTimeout(timeout);
@@ -306,6 +307,9 @@
                     creat_img = false;
                 } else {
                     alert("error: " + this.responseText)
+                }
+                if (autoRun) {
+                    generate_button.click();
                 }
 
             }
