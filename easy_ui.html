@@ -29,12 +29,12 @@
             border-radius: 8px;
             display: inline-block;
             cursor: pointer;
-            /* background-image: linear-gradient(to right, rgba(255,0,0,0), rgba(255,0,0,1)); */
+            background-image: linear-gradient(to right, rgba(255,0,0,0), rgba(255,0,0,1));
         }
 
-        /* #progress {
+        #progress {
             background-image: linear-gradient(to right, rgba(255,0,0,0), rgba(255,0,0,1));
-        } */
+        }
     </style>
     <div style="display: flex;">
         <span style="width: 14%;">后端requests请求URL:</span><input type="text" value="http://127.0.0.1:7860/"
@@ -82,7 +82,7 @@
     <div style="position:relative;top:10px;text-align: center;">
         <button onclick="generate()" id="generate_button">生成</button>
     </div>
-    <div class="progressContainer" style="width: 30%;background-color: var(--fontColor);margin: 8px auto;display: none;"
+    <div class="progressContainer" style="width: 30%;background-color: lightblue;margin: 8px auto;display: none;"
         id="progressContainer">
         <div class="progress" id="progress" style="height:100%;width:50%;text-align: center;background-color: pink;">25%
         </div>
