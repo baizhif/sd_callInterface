@@ -84,8 +84,7 @@
     </div>
     <div class="progressContainer" style="width: 30%;background-color: lightblue;margin: 8px auto;display: none;"
         id="progressContainer">
-        <div class="progress" id="progress" style="height:100%;width:50%;text-align: center;background-color: pink;">25%
-        </div>
+        <div class="progress" id="progress" style="height:100%;width:0%;text-align: center;background-color: pink;"></div>
     </div>
     <div class="imgBox" id="show_img"></div>
 
@@ -101,7 +100,7 @@
             xhr.onload = function () {
                 const data = JSON.parse(xhr.responseText);
                 progress.style.width = Number.parseInt(data["progress"] * 100) + "%";
-                progress.innerHTML = progress.style.width + "% ETA: " + Number.parseFloat(data["eta_relative"]).toFixed(1) + "s";
+                progress.innerHTML = progress.style.width + " ETA: " + Number.parseFloat(data["eta_relative"]).toFixed(1) + "s";
                 if (data["current_image"]) {
                     if (creat_img) {
                         show_img_div.firstChild.src = "data:image/png;base64," + data["current_image"];
