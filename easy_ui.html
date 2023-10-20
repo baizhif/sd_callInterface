@@ -107,7 +107,7 @@
                         show_img_div.firstChild.src = "data:image/png;base64," + data["current_image"];
                     } else {
                         const img = document.createElement("img");
-                        img.style.maxWidth = "300px";
+                        img.style.width = "300px";
                         img.src = "data:image/png;base64," + data["current_image"];
                         img.addEventListener("click", downloadImage);
                         show_img_div.insertBefore(img, show_img_div.firstChild);
@@ -280,6 +280,8 @@
                     // img.addEventListener("click", downloadImage);
                     // show_img_div.insertBefore(img, show_img_div.firstChild);
                     show_img_div.firstChild.src = "data:image/png;base64," + this.responseText.replaceAll('"', '');
+                    show_img_div.firstChild.style.maxWidth = "300px";
+                    show_img_div.style.removeProperty("width");
                     creat_img = false;
                 } else {
                     alert("error: " + this.responseText)
