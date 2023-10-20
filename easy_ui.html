@@ -89,7 +89,6 @@
     <script>
         const progress = document.getElementById("progress");
         const progressContainer = document.getElementById("progressContainer");
-        let runProgess = false;
         function Progress() {
             const xhr = new XMLHttpRequest();
             xhr.open("get","/callInterface/api/getForwarding",true);
@@ -97,6 +96,8 @@
             xhr.send();
             xhr.onload = function(){
                 const data = JSON.parse(xhr.responseText);
+                console.log(progress.style.width + "% ETA" + Number.parseFloat(data["eta_relative"]).toFixed(1) + "s");
+                console.log(Number.parseInt(data["progress"] * 100)+ "%");
                 progress.style.width = Number.parseInt(data["progress"] * 100)+ "%";
                 progress.style.innerHTML = progress.style.width + "% ETA" + Number.parseFloat(data["eta_relative"]).toFixed(1) + "s";
                 if (data["current_image"]) {
@@ -258,7 +259,6 @@
             xhr.setRequestHeader("Tgt-Url", document.getElementById("Tgt-Url").value);
             xhr.onload = function () {
                 clearInterval(Interval);
-                runProgess = false;
                 progressContainer.style.display = "none";
                 progress.style.width = "0%";
                 progress.innerHTML = '';
@@ -274,7 +274,6 @@
 
             }
             xhr.send(JSON.stringify(param));
-            runProgess = true;
             progressContainer.style.display = "block";
             const Interval = setInterval(Progress,1000);
 
