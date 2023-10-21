@@ -163,7 +163,7 @@
         }
         function is_use_controlnet(){
             units = document.getElementsByClassName("unit");
-            for (let i=0; i<selects.length; i++) {
+            for (let i=0; i<units.length; i++) {
                 if (units[i].children[0].innerText === "开" && controlnet_images[i]) {
                     return true;
                 }
@@ -173,7 +173,7 @@
         function getControlnetParams(){
             units = document.getElementsByClassName("unit");
             const args = [];
-            for (let i=0; i<selects.length; i++) {
+            for (let i=0; i<units.length; i++) {
                 if (units[i].children[0].innerText === "开" && controlnet_images[i]) {
                     const item_args = {};
                     const model = units[i].children[4].options[units[i].children[4].selectedIndex].text;
