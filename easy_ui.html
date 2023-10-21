@@ -86,10 +86,10 @@
         <button id="unit_btn_1" onclick="showControlNetSelect()">unit 1</button>
         <button id="unit_btn_2" onclick="showControlNetSelect()">unit 2</button>
         <button id="unit_btn_3" onclick="showControlNetSelect()">unit 3</button>
-        <div id="unit_1" style="display: none;">
+        <div id="unit_1" style="display: none;" class="unit">
             <button onclick="use_control()">关</button>
             <button id="unit_pic_1" onclick="controlNetPicturesSelect()">图片</button>
-            <button>Pixel Perfect(开)</button>
+            <button value=true onclick="Pixel_Perfect()">Pixel Perfect(开)</button>
             <span>预处理器</span><select class="module_list"></select>
             <span>模型</span><select class="model_list"></select>
             <span>Control Weight(权重)</span><input type="number" value='1' />
@@ -101,10 +101,10 @@
                 <option>ControlNet is more important</option>
             </select>
         </div>
-        <div id="unit_2" style="display: none;">
+        <div id="unit_2" style="display: none;" class="unit">
             <button onclick="use_control()">关</button>
             <button id="unit_pic_2" onclick="controlNetPicturesSelect()">图片</button>
-            <button>Pixel Perfect(开)</button>
+            <button value=true onclick="Pixel_Perfect()">Pixel Perfect(开)</button>
             <span>预处理器</span><select class="module_list"></select>
             <span>模型</span><select class="model_list"></select>
             <span>Control Weight(权重)</span><input type="number" value='1' />
@@ -116,10 +116,10 @@
                 <option>ControlNet is more important</option>
             </select>
         </div>
-        <div id="unit_3" style="display: none;">
+        <div id="unit_3" style="display: none;" class="unit">
             <button onclick="use_control()">关</button>
             <button id="unit_pic_3" onclick="controlNetPicturesSelect()">图片</button>
-            <button>Pixel Perfect(开)</button>
+            <button value=true onclick="Pixel_Perfect()">Pixel Perfect(开)</button>
             <span>预处理器</span><select class="module_list"></select>
             <span>模型</span><select class="model_list"></select>
             <span>Control Weight(权重)</span><input type="number" value='1' />
@@ -150,7 +150,46 @@
         const unit_btn_1 = document.getElementById("unit_btn_1");
         const unit_btn_2 = document.getElementById("unit_btn_2");
         const unit_btn_3 = document.getElementById("unit_btn_3");
-        let unit_pic_1, unit_pic_2, unit_pic_3;
+        const controlnet_images = [0, 0, 0]
+
+        function Pixel_Perfect(){
+            if (event.currentTarget.innerText === "Pixel Perfect(开)") {
+                event.currentTarget.innerText = "Pixel Perfect(关)";
+                event.currentTarget.value = false;
+            } else {
+                event.currentTarget.innerText = "Pixel Perfect(开)";
+                event.currentTarget.value = true;
+            }
+        }
+        function is_use_controlnet(){
+            units = document.getElementsByClassName("unit");
+            for (unit_index in units) {
+                if (units[unit_index].children[0].innerText === "开" && controlnet_images[unit_index]) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        function getControlnetParams(){
+            units = document.getElementsByClassName("unit");
+            const args = [];
+            for (unit_index in units) {
+                if (units[unit_index].children[0].innerText === "开" && controlnet_images[unit_index]) {
+                    const item_args = {};
+                    const model = units[unit_index].children[4].options[units[unit_index].children[4].selectedIndex].text;
+                    const module = units[unit_index].children[3].options[units[unit_index].children[3].selectedIndex].text;
+                    const input_image = controlnet_images[unit_index];
+                    const pixel_perfect = units[unit_index].children[2].value;
+                    item_args["model"] = model;
+                    item_args["module"] = module;
+                    item_args["input_image"] = input_image;
+                    args[unit_index] = item_args;
+                }
+            }
+            return args;
+        }
+        getControlnetParams()
+
         function showControlNet() {
             if (document.getElementById("Controlnet").style.display === "block") {
                 document.getElementById("Controlnet").style.display = "none";
@@ -184,11 +223,11 @@
         function controlNetPicturesSelect(img_base64 = null, sign = null) {
             if (img_base64) {
                 if (sign === "unit_pic_1") {
-                    unit_pic_1 = img_base64;
+                    controlnet_images[0] = img_base64;
                 } else if (sign === "unit_pic_2") {
-                    unit_pic_2 = img_base64;
+                    controlnet_images[1] = img_base64;
                 } else {
-                    unit_pic_3 = img_base64;
+                    controlnet_images[2] = img_base64;
                 }
                 insertImg(img_base64)
             } else {
@@ -394,7 +433,7 @@
             const sd_vae = document.getElementById("VAE").options[document.getElementById("VAE").selectedIndex].text;
             let seed = document.getElementById("seed").value;
             seed = (seed == '0' || seed == '-1') ? seed = Math.random().toString().slice(9) : seed
-            param = {
+            let param = {
                 "prompt": p_prompt,
                 "negative_prompt": n_prompt,
                 "seed": seed,
@@ -418,6 +457,13 @@
                 param["hr_scale"] = document.getElementById("magnification").value;
                 param["denoising_strength"] = document.getElementById("denoising_strength").value;
                 param["hr_upscaler"] = document.getElementById("hr_upscaler").options[document.getElementById("hr_upscaler").selectedIndex].text;
+            }
+            if (is_use_controlnet()) {
+                param["alwayson_scripts"] = {
+                    "controlnet":{
+                        "args":getControlnetParams()
+                    }
+                }
             }
             const xhr = new XMLHttpRequest();
             const url = '/callInterface/api/generate';
