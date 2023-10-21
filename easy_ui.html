@@ -188,7 +188,7 @@
             }
             return args;
         }
-        
+
         function showControlNet() {
             if (document.getElementById("Controlnet").style.display === "block") {
                 document.getElementById("Controlnet").style.display = "none";
@@ -386,6 +386,7 @@
                     for (result in results) {
                         let result_option = document.createElement("option");
                         result_option.innerText = results[result];
+                        console.log(666,select,responseText);
                         select.appendChild(result_option, select.firstChild);
                     }
                 }
