@@ -391,8 +391,7 @@
                 }
                 if (type==="class") {
                     const selects = document.getElementsByClassName(select_id);
-                    for (select in selects) {
-                        console.log(select,selects,66666);
+                    for (let i=0; i<selects.length; i++) {
                         fillSelect(selects[select],this.responseText)
                     }
                 } else{
