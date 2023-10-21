@@ -351,6 +351,7 @@
                     }
                 }
                 if (type==="class") {
+                    console.log(document.getElementsByClassName(select_id));
                     for (select in document.getElementsByClassName(select_id)) {
                         fillSelect(select,this.responseText)
                     }
