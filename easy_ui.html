@@ -383,10 +383,11 @@
                 function fillSelect(select,responseText) {
                     select.innerHTML = "";
                     const results = responseText.replaceAll('"', '').split(',')
+                    console.log(777,select,responseText);
                     for (result in results) {
                         let result_option = document.createElement("option");
                         result_option.innerText = results[result];
-                        console.log(666,select,responseText);
+                        console.log(666,select);
                         select.appendChild(result_option, select.firstChild);
                     }
                 }
