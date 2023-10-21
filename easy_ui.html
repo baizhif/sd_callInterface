@@ -187,13 +187,17 @@
                     item_args["model"] = model;
                     item_args["module"] = module;
                     item_args["input_image"] = input_image;
-                    // item_args["control_mode"] = control_mode;
+                    item_args["control_mode"] = control_mode;
                     item_args["pixel_perfect"] = pixel_perfect;
                     item_args["weight"] = weight;
                     item_args["guidance_start"] = guidance_start;
                     item_args["guidance_end"] = guidance_end;
                     item_args["threshold_a"] = 0;
                     item_args["threshold_b"] = 0;
+                    item_args["lowram"] = false;
+                    item_args["processor_res"] = 0;
+                    item_args["resize_mode"] = 1;
+                    item_args["enabled"] = true;
                     args[i] = item_args;
                 }
             }
