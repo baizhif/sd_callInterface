@@ -372,10 +372,10 @@
                     const reader = new FileReader();
                     reader.readAsDataURL(evt.target.files[0]);
                     reader.onload = function () {
-                        img_base64 = this.result;
                         if (sign) {
-                            callback(img_base64, sign);
+                            callback(this.result, sign);
                         } else {
+                            img_base64 = this.result;
                             callback(img_base64);
                         }
                     }
