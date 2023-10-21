@@ -192,12 +192,13 @@
                     item_args["weight"] = weight;
                     item_args["guidance_start"] = guidance_start;
                     item_args["guidance_end"] = guidance_end;
-                    item_args["threshold_a"] = 0;
-                    item_args["threshold_b"] = 0;
+                    item_args["threshold_a"] = 64;
+                    item_args["threshold_b"] = 64;
                     item_args["lowram"] = false;
                     item_args["processor_res"] = 0;
                     item_args["resize_mode"] = 1;
                     item_args["enabled"] = true;
+                    
                     args[i] = item_args;
                 }
             }
@@ -462,10 +463,10 @@
                     "sd_vae": sd_vae,
                 }
             }
-            // if (img_base64) {
-            //     param["init_images"] = [img_base64];
-            //     param["denoising_strength"] = document.getElementById("denoising_strength").value;
-            // }
+            if (img_base64) {
+                param["init_images"] = [img_base64];
+                param["denoising_strength"] = document.getElementById("denoising_strength").value;
+            }
             if (is_hr && !img_base64) {
                 param["enable_hr"] = true;
                 param["hr_scale"] = document.getElementById("magnification").value;
