@@ -163,8 +163,8 @@
         }
         function is_use_controlnet(){
             units = document.getElementsByClassName("unit");
-            for (unit_index in units) {
-                if (units[unit_index].children[0].innerText === "开" && controlnet_images[unit_index]) {
+            for (let i=0; i<selects.length; i++) {
+                if (units[i].children[0].innerText === "开" && controlnet_images[i]) {
                     return true;
                 }
             }
@@ -173,17 +173,17 @@
         function getControlnetParams(){
             units = document.getElementsByClassName("unit");
             const args = [];
-            for (unit_index in units) {
-                if (units[unit_index].children[0].innerText === "开" && controlnet_images[unit_index]) {
+            for (let i=0; i<selects.length; i++) {
+                if (units[i].children[0].innerText === "开" && controlnet_images[i]) {
                     const item_args = {};
-                    const model = units[unit_index].children[4].options[units[unit_index].children[4].selectedIndex].text;
-                    const module = units[unit_index].children[3].options[units[unit_index].children[3].selectedIndex].text;
-                    const input_image = controlnet_images[unit_index];
-                    const pixel_perfect = units[unit_index].children[2].value;
+                    const model = units[i].children[4].options[units[i].children[4].selectedIndex].text;
+                    const module = units[i].children[3].options[units[i].children[3].selectedIndex].text;
+                    const input_image = controlnet_images[i];
+                    const pixel_perfect = units[i].children[2].value;
                     item_args["model"] = model;
                     item_args["module"] = module;
                     item_args["input_image"] = input_image;
-                    args[unit_index] = item_args;
+                    args[i] = item_args;
                 }
             }
             return args;
