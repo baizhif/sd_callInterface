@@ -70,7 +70,7 @@
                 <option>DPM++ SDE Karras</option>
             </select></span>
         <span onclick="RefreshVAE()" style="cursor: pointer;">VAE: </span><select id="VAE"></select>
-        <button onclick="selectPic()">选图</button>
+        <button onclick="browerPicture()">浏览本地</button>
         <button onclick="cancelImg()" style="display:none;" id="cancelImg_button">取消</button>
     </div>
     <div>
@@ -79,6 +79,60 @@
         <span>重回幅度: </span> <input type="number" min="0.01" step="0.01" value="0.6" id="denoising_strength" />
         <span>放大算法: <select id="hr_upscaler"></select></span>
     </div>
+
+    <button style="margin-top: 20px;" onclick="showControlNet()">Controlnet</button>
+
+    <div style="margin-top: 6px;display: none;" id="Controlnet" ;>
+        <button id="unit_btn_1" onclick="showControlNetSelect()">unit 1</button>
+        <button id="unit_btn_2" onclick="showControlNetSelect()">unit 2</button>
+        <button id="unit_btn_3" onclick="showControlNetSelect()">unit 3</button>
+        <div id="unit_1" style="display: none;">
+            <button onclick="use_control()">关</button>
+            <button id="unit_pic_1" onclick="controlNetPicturesSelect()">图片</button>
+            <button>Pixel Perfect(开)</button>
+            <span>预处理器</span><select class="module_list"></select>
+            <span>模型</span><select></select>
+            <span>Control Weight(权重)</span><input type="number" value='1' />
+            <span>Starting Control Step</span><input type="number" value='0' />
+            <span>Ending Control Step</span><input type="number" value="1" />
+            <span>Control Mode</span> <select>
+                <option>Balanced</option>
+                <option>My prompt is more important</option>
+                <option>ControlNet is more important</option>
+            </select>
+        </div>
+        <div id="unit_2" style="display: none;">
+            <button onclick="use_control()">关</button>
+            <button id="unit_pic_2" onclick="controlNetPicturesSelect()">图片</button>
+            <button>Pixel Perfect(开)</button>
+            <span>预处理器</span><select class="module_list"></select>
+            <span>模型</span><select></select>
+            <span>Control Weight(权重)</span><input type="number" value='1' />
+            <span>Starting Control Step</span><input type="number" value='0' />
+            <span>Ending Control Step</span><input type="number" value="1" />
+            <span>Control Mode</span> <select>
+                <option>Balanced</option>
+                <option>My prompt is more important</option>
+                <option>ControlNet is more important</option>
+            </select>
+        </div>
+        <div id="unit_3" style="display: none;">
+            <button onclick="use_control()">关</button>
+            <button id="unit_pic_3" onclick="controlNetPicturesSelect()">图片</button>
+            <button>Pixel Perfect(开)</button>
+            <span>预处理器</span><select class="module_list"></select>
+            <span>模型</span><select></select>
+            <span>Control Weight(权重)</span><input type="number" value='1' />
+            <span>Starting Control Step</span><input type="number" value='0' />
+            <span>Ending Control Step</span><input type="number" value="1" />
+            <span>Control Mode</span> <select>
+                <option>Balanced</option>
+                <option>My prompt is more important</option>
+                <option>ControlNet is more important</option>
+            </select>
+        </div>
+    </div>
+
     <div style="position:relative;top:10px;text-align: center;">
         <button onclick="generate()" id="generate_button">生成</button>
     </div>
@@ -88,6 +142,67 @@
         </div>
     </div>
     <div class="imgBox" id="show_img"></div>
+
+    <script>
+        const unit_1 = document.getElementById("unit_1");
+        const unit_2 = document.getElementById("unit_2");
+        const unit_3 = document.getElementById("unit_3");
+        const unit_btn_1 = document.getElementById("unit_btn_1");
+        const unit_btn_2 = document.getElementById("unit_btn_2");
+        const unit_btn_3 = document.getElementById("unit_btn_3");
+        let unit_pic_1, unit_pic_2, unit_pic_3;
+        function showControlNet() {
+            if (document.getElementById("Controlnet").style.display === "block") {
+                document.getElementById("Controlnet").style.display = "none";
+            } else {
+                document.getElementById("Controlnet").style.display = "block";
+            }
+        }
+        function showControlNetSelect() {
+            const currentbutton = event.currentTarget;
+            currentbutton.style.backgroundColor = "lightblue";
+            if (currentbutton.innerText === "unit 1") {
+                unit_btn_2.style.backgroundColor = backgroung_color;
+                unit_btn_3.style.backgroundColor = backgroung_color;
+                unit_2.style.display = "none";
+                unit_3.style.display = "none";
+                unit_1.style.display = "block";
+            } else if (currentbutton.innerText === "unit 2") {
+                unit_btn_1.style.backgroundColor = backgroung_color;
+                unit_btn_3.style.backgroundColor = backgroung_color;
+                unit_1.style.display = "none";
+                unit_3.style.display = "none";
+                unit_2.style.display = "block";
+            } else {
+                unit_btn_1.style.backgroundColor = backgroung_color;
+                unit_btn_2.style.backgroundColor = backgroung_color;
+                unit_1.style.display = "none";
+                unit_2.style.display = "none";
+                unit_3.style.display = "block";
+            }
+        }
+        function controlNetPicturesSelect(img_base64 = null, sign = null) {
+            if (img_base64) {
+                if (sign === "unit_pic_1") {
+                    unit_pic_1 = img_base64;
+                } else if (sign === "unit_pic_2") {
+                    unit_pic_2 = img_base64;
+                } else {
+                    unit_pic_3 = img_base64;
+                }
+                insertImg(img_base64)
+            } else {
+                selectPic(controlNetPicturesSelect, sign = event.currentTarget.id);
+            }
+        }
+        function use_control() {
+            if (event.currentTarget.innerText === "关") {
+                event.currentTarget.innerText = "开";
+            } else {
+                event.currentTarget.innerText = "关";
+            }
+        }
+    </script>
 
     <script>
         const progress = document.getElementById("progress");
@@ -106,15 +221,18 @@
                     if (creat_img) {
                         show_img_div.firstChild.src = "data:image/png;base64," + data["current_image"];
                     } else {
-                        const img = document.createElement("img");
-                        img.style.width = "300px";
-                        img.src = "data:image/png;base64," + data["current_image"];
-                        img.addEventListener("click", downloadImage);
-                        show_img_div.insertBefore(img, show_img_div.firstChild);
+                        insertImg("data:image/png;base64," + data["current_image"]);
                         creat_img = true;
                     }
                 }
             }
+        }
+        function insertImg(src) {
+            const img = document.createElement("img");
+            img.style.width = "300px";
+            img.src = src;
+            img.addEventListener("click", downloadImage);
+            show_img_div.insertBefore(img, show_img_div.firstChild);
         }
     </script>
 
@@ -136,7 +254,7 @@
                 }
             }, 1000)
         })
-        generate_button.addEventListener("mouseup",function(){
+        generate_button.addEventListener("mouseup", function () {
             clearTimeout(timeout);
         })
 
@@ -179,6 +297,7 @@
                 document.getElementById("height").value = img.height;
                 img.style.maxWidth = "300px";
                 document.getElementById("show_img").insertBefore(img, document.getElementById("show_img").firstChild);
+                document.getElementById("cancelImg_button").style.display = "inline";
             }
         }
 
@@ -191,7 +310,7 @@
 
         let img_base64;
 
-        function selectPic() {
+        function selectPic(callback, sign = null) {
             const selectPic = document.getElementById("selectPic");
             selectPic.click();
             selectPic.onchange = function (evt) {
@@ -200,27 +319,43 @@
                     reader.readAsDataURL(evt.target.files[0]);
                     reader.onload = function () {
                         img_base64 = this.result;
-                        getWH(img_base64);
-                        document.getElementById("cancelImg_button").style.display = "inline";
+                        if (sign) {
+                            callback(img_base64, sign);
+                        } else {
+                            callback(img_base64);
+                        }
                     }
                 }
             }
         }
 
+        function browerPicture() {
+            selectPic(getWH);
+        }
+
+        easyGetOptions("controlnet/module_list", "module_list", type = "class");
         easyGetOptions("sdapi/v1/upscalers", "hr_upscaler");
         easyGetOptions("sdapi/v1/sd-vae", "VAE");
-        function easyGetOptions(tSrc, select_id) {
+        function easyGetOptions(tSrc, select_id, type = "id") {
             const xhr = new XMLHttpRequest();
             xhr.open("get", "/callInterface/api/easyGetOptions", true)
             xhr.setRequestHeader("Tgt-Url", document.getElementById("Tgt-Url").value + tSrc);
             xhr.onload = function () {
-                const select = document.getElementById(select_id);
-                select.innerHTML = "";
-                const results = this.responseText.replaceAll('"', '').split(',')
-                for (result in results) {
-                    let result_option = document.createElement("option");
-                    result_option.innerText = results[result];
-                    select.appendChild(result_option, select.firstChild);
+                function fillSelect(select,responseText) {
+                    select.innerHTML = "";
+                    const results = responseText.replaceAll('"', '').split(',')
+                    for (result in results) {
+                        let result_option = document.createElement("option");
+                        result_option.innerText = results[result];
+                        select.appendChild(result_option, select.firstChild);
+                    }
+                }
+                if (type==="class") {
+                    for (select in document.getElementsByClassName(select_id)) {
+                        fillSelect(select,this.responseText)
+                    }
+                } else{
+                    fillSelect(document.getElementById(select_id),this.responseText)
                 }
             }
             xhr.send();
