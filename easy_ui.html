@@ -351,10 +351,9 @@
                     }
                 }
                 if (type==="class") {
-                    console.log(document.getElementsByClassName(select_id));
-                    for (select in document.getElementsByClassName(select_id)) {
-                        console.log(666,select);
-                        fillSelect(select,this.responseText)
+                    const selects = document.getElementsByClassName(select_id);
+                    for (select in selects) {
+                        fillSelect(selects[select],this.responseText)
                     }
                 } else{
                     fillSelect(document.getElementById(select_id),this.responseText)
