@@ -91,7 +91,7 @@
             <button id="unit_pic_1" onclick="controlNetPicturesSelect()">图片</button>
             <button>Pixel Perfect(开)</button>
             <span>预处理器</span><select class="module_list"></select>
-            <span>模型</span><select></select>
+            <span>模型</span><select class="model_list"></select>
             <span>Control Weight(权重)</span><input type="number" value='1' />
             <span>Starting Control Step</span><input type="number" value='0' />
             <span>Ending Control Step</span><input type="number" value="1" />
@@ -106,7 +106,7 @@
             <button id="unit_pic_2" onclick="controlNetPicturesSelect()">图片</button>
             <button>Pixel Perfect(开)</button>
             <span>预处理器</span><select class="module_list"></select>
-            <span>模型</span><select></select>
+            <span>模型</span><select class="model_list"></select>
             <span>Control Weight(权重)</span><input type="number" value='1' />
             <span>Starting Control Step</span><input type="number" value='0' />
             <span>Ending Control Step</span><input type="number" value="1" />
@@ -121,7 +121,7 @@
             <button id="unit_pic_3" onclick="controlNetPicturesSelect()">图片</button>
             <button>Pixel Perfect(开)</button>
             <span>预处理器</span><select class="module_list"></select>
-            <span>模型</span><select></select>
+            <span>模型</span><select class="model_list"></select>
             <span>Control Weight(权重)</span><input type="number" value='1' />
             <span>Starting Control Step</span><input type="number" value='0' />
             <span>Ending Control Step</span><input type="number" value="1" />
@@ -334,6 +334,7 @@
         }
 
         easyGetOptions("controlnet/module_list", "module_list", type = "class");
+        easyGetOptions("controlnet/model_list", "model_list", type = "class");
         easyGetOptions("sdapi/v1/upscalers", "hr_upscaler");
         easyGetOptions("sdapi/v1/sd-vae", "VAE");
         function easyGetOptions(tSrc, select_id, type = "id") {
