@@ -92,9 +92,9 @@
             <button value=true onclick="Pixel_Perfect()">Pixel Perfect(开)</button>
             <span>预处理器</span><select class="module_list"></select>
             <span>模型</span><select class="model_list"></select>
-            <span>Control Weight(权重)</span><input type="number" value='1' />
-            <span>Starting Control Step</span><input type="number" value='0' />
-            <span>Ending Control Step</span><input type="number" value="1" />
+            <span>Control Weight(权重)</span><input type="number" value='1' step="0.05" max="2" min="0"/>
+            <span>Starting Control Step</span><input type="number" value='0' step="0.01" max="1" min="0"/>
+            <span>Ending Control Step</span><input type="number" value="1" step="0.01" max="1" min="0"/>
             <span>Control Mode</span> <select>
                 <option>Balanced</option>
                 <option>My prompt is more important</option>
@@ -107,9 +107,9 @@
             <button value=true onclick="Pixel_Perfect()">Pixel Perfect(开)</button>
             <span>预处理器</span><select class="module_list"></select>
             <span>模型</span><select class="model_list"></select>
-            <span>Control Weight(权重)</span><input type="number" value='1' />
-            <span>Starting Control Step</span><input type="number" value='0' />
-            <span>Ending Control Step</span><input type="number" value="1" />
+            <span>Control Weight(权重)</span><input type="number" value='1' step="0.05" max="2" min="0"/>
+            <span>Starting Control Step</span><input type="number" value='0' step="0.01" max="1" min="0"/>
+            <span>Ending Control Step</span><input type="number" value="1" step="0.01" max="1" min="0"/>
             <span>Control Mode</span> <select>
                 <option>Balanced</option>
                 <option>My prompt is more important</option>
@@ -122,9 +122,9 @@
             <button value=true onclick="Pixel_Perfect()">Pixel Perfect(开)</button>
             <span>预处理器</span><select class="module_list"></select>
             <span>模型</span><select class="model_list"></select>
-            <span>Control Weight(权重)</span><input type="number" value='1' />
-            <span>Starting Control Step</span><input type="number" value='0' />
-            <span>Ending Control Step</span><input type="number" value="1" />
+            <span>Control Weight(权重)</span><input type="number" value='1' step="0.05" max="2" min="0"/>
+            <span>Starting Control Step</span><input type="number" value='0' step="0.01" max="1" min="0"/>
+            <span>Ending Control Step</span><input type="number" value="1" step="0.01" max="1" min="0"/>
             <span>Control Mode</span> <select>
                 <option>Balanced</option>
                 <option>My prompt is more important</option>
@@ -176,14 +176,24 @@
             for (let i=0; i<units.length; i++) {
                 if (units[i].children[0].innerText === "开" && controlnet_images[i]) {
                     const item_args = {};
-                    console.log(666,units[i]);
                     const model = units[i].children[6].options[units[i].children[6].selectedIndex].text;
                     const module = units[i].children[4].options[units[i].children[4].selectedIndex].text;
+                    const resize_mode = units[i].children[14].options[units[i].children[14].selectedIndex].text;
                     const input_image = controlnet_images[i];
                     const pixel_perfect = units[i].children[2].value;
+                    const weight = units[i].children[8].value;
+                    const guidance_start = units[i].children[10].value;
+                    const guidance_end = units[i].children[12].value;
                     item_args["model"] = model;
                     item_args["module"] = module;
                     item_args["input_image"] = input_image;
+                    item_args["resize_mode"] = resize_mode;
+                    item_args["pixel_perfect"] = pixel_perfect;
+                    item_args["weight"] = weight;
+                    item_args["guidance_start"] = guidance_start;
+                    item_args["guidance_end"] = guidance_end;
+                    item_args["threshold_a"] = 0;
+                    item_args["threshold_b"] = 0;
                     args[i] = item_args;
                 }
             }
