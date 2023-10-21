@@ -392,7 +392,7 @@
                 if (type==="class") {
                     const selects = document.getElementsByClassName(select_id);
                     for (let i=0; i<selects.length; i++) {
-                        fillSelect(selects[select],this.responseText)
+                        fillSelect(selects[i],this.responseText)
                     }
                 } else{
                     fillSelect(document.getElementById(select_id),this.responseText)
