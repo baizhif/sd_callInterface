@@ -40,6 +40,8 @@ def on_app_started(_: gr.Blocks, app: FastAPI) -> None:
             return ",".join([upscaler["name"] for upscaler in response.json() if upscaler["name"] !="None"])
         elif response.status_code == 200 and tgt_url.endswith("sd-vae"):
             return ",".join(["default"] + [model["model_name"] for model in response.json() if model] + ["None","Automatic"])
+        elif response.status_code == 200 and tgt_url.endswith("module_list"):
+            return ",".join(response.json()["module_list"])
     @app.get("/callInterface/api/getForwarding")
     def getForwarding(request: Request):
         tgt_url = request.headers.get("Tgt-Url").strip()
