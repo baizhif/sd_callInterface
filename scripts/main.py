@@ -42,6 +42,8 @@ def on_app_started(_: gr.Blocks, app: FastAPI) -> None:
             return ",".join(["default"] + [model["model_name"] for model in response.json() if model] + ["None","Automatic"])
         elif response.status_code == 200 and tgt_url.endswith("module_list"):
             return ",".join(response.json()["module_list"])
+        elif response.status_code == 200 and tgt_url.endswith("model_list"):
+            return ",".join(response.json()["model_list"])
     @app.get("/callInterface/api/getForwarding")
     def getForwarding(request: Request):
         tgt_url = request.headers.get("Tgt-Url").strip()
